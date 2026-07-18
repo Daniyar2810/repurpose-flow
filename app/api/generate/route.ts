@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     const platformOutputs = await generatePlatformOutputs(coreJSON, tone || 'Profesyonel');
 
     // 3. Supabase DB Kaydı
-    let projectId = null;
+    let projectId: string | null = null;
     if (userId) {
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
