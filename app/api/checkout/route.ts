@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27',
-});
+// API versiyonunu siliyoruz, Stripe otomatik olarak kendi sürümünü kullanacak:
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +12,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Kullanıcı bilgileri eksik' }, { status: 400 });
     }
 
-    // İstek atan kaynağı (origin) yakalıyoruz (localhost veya Vercel canlı linki)
     const origin = req.headers.get('origin') || 'http://localhost:3000';
 
     const session = await stripe.checkout.sessions.create({
@@ -26,7 +24,7 @@ export async function POST(req: NextRequest) {
               name: '10 Adet Ek Kullanım Hakkı (Kredi)',
               description: 'RepurposeFlow üzerinde 10 yeni içerik dönüştürme hakkı tanımlar.',
             },
-            unit_amount: 10000, // 100.00 TL
+            unit_amount: 10000,
           },
           quantity: 1,
         },
@@ -34,8 +32,6 @@ export async function POST(req: NextRequest) {
       mode: 'payment',
       customer_email: email,
       client_reference_id: userId,
-      
-      // Dinamik URL: Kullanıcı hangi ortamdaysa oraya geri döner
       success_url: `${origin}/?payment=success`,
       cancel_url: `${origin}/?payment=failed`,
     });
